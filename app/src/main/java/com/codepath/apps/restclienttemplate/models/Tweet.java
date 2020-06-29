@@ -5,16 +5,21 @@ import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Parcel
 public class Tweet {
 
     // some fields for a Tweet object
     public String body;
     public String createdAt;
     public User user;
+
+    // empty constructor needed by the Parceler libarary
+    public Tweet() {}
 
     // turn a JsonObject into a java Tweet Object
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
