@@ -19,8 +19,8 @@ public class Tweet {
     // turn a JsonObject into a java Tweet Object
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
-        tweet.body = jsonObject.getString("test");
-        tweet.createdAt = jsonObject.getString("create_at");
+        tweet.body = jsonObject.getString("text");
+        tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
         return tweet;
     }
