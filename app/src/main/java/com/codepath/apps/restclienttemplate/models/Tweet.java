@@ -1,7 +1,6 @@
 package com.codepath.apps.restclienttemplate.models;
 
 import android.util.Log;
-import android.widget.ListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +19,7 @@ public class Tweet {
     public String createdAt;
     public String mediaUrl;
     public User user;
+    public long id;
 
     // empty constructor needed by the Parceler libarary
     public Tweet() {}
@@ -30,6 +30,7 @@ public class Tweet {
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+        tweet.id = jsonObject.getLong("id");
 
         if (jsonObject.getJSONObject("entities").has("media")) {
             Log.i(TAG, "fromJson: get media url");
@@ -40,10 +41,16 @@ public class Tweet {
         return tweet;
     }
 
+
+
     // turn a JsonArray into a list of Tweet objects
     public static List<Tweet> fromJsonArray(JSONArray jsonArray) throws JSONException {
         List<Tweet> tweets = new ArrayList<>();
+        long lowestId = jsonArray.getJSONObject(0).getLong("id");
         for (int i = 0; i < jsonArray.length(); i++) {
+            if (jsonArray.getJSONObject(i).getLong("id") < lowestId) {
+                lowestId = jsonArray.getJSONObject(i).getLong("id");
+            }
             tweets.add(fromJson((jsonArray.getJSONObject(i))));
         }
         return tweets;
