@@ -13,6 +13,7 @@ import java.util.List;
 
 @Parcel
 public class Tweet {
+    public static final String TAG = "Tweet";
 
     // some fields for a Tweet object
     public String body;
@@ -31,7 +32,7 @@ public class Tweet {
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
 
         if (jsonObject.getJSONObject("entities").has("media")) {
-            Log.i("photo", "fromJson: get media url");
+            Log.i(TAG, "fromJson: get media url");
             tweet.mediaUrl = jsonObject.getJSONObject("entities")
                     .getJSONArray("media")
                     .getJSONObject(0).getString("media_url_https");

@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
+import com.codepath.apps.restclienttemplate.activities.DetailActivity;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 
-import org.w3c.dom.Text;
+import org.parceler.Parcels;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +30,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
     Context context;
     List<Tweet> tweets;
+    //private final int REQUEST_CODE = 20;
 
     // pass in the context and list of tweets
     public TweetsAdapter(Context context, List<Tweet> tweets) {
@@ -68,7 +73,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     }
 
     // Define a view holder
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView ivProfileImage;
         ImageView ivMediaPhoto;
@@ -83,15 +88,40 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvBody = itemView.findViewById(R.id.tvBody);
             tvScreenName = itemView.findViewById(R.id.tvScreenName);
             tvRelativeTime = itemView.findViewById(R.id.tvRelativeTime);
+
+            // set a click listener to get to detail page
+            itemView.setOnClickListener(this);
         }
 
+        int radius = 30; // corner radius, higher value = more rounded
+        int margin = 10; // crop margin, set to 0 for corners with no crop
         public void bind(Tweet tweet) {
             tvBody.setText(tweet.body);
-            tvScreenName.setText(tweet.user.screenName);
+            tvScreenName.setText(tweet.user.name);
             tvRelativeTime.setText(getRelativeTimeAgo(tweet.createdAt));
 
-            Glide.with(context).load(tweet.user.profileImageUrl).into(ivProfileImage);
-            Glide.with(context).load(tweet.mediaUrl).into(ivMediaPhoto);
+            Glide.with(context).load(tweet.user.profileImageUrl)
+                    .transform(new RoundedCornersTransformation(radius, margin)).into(ivProfileImage);
+            if (tweet.mediaUrl != null) {
+                Glide.with(context).load(tweet.mediaUrl)
+                        .into(ivMediaPhoto);
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            // gets item position
+            int position = getAdapterPosition();
+            // make sure the position is valid, i.e. actually exists in the view
+            if (position != RecyclerView.NO_POSITION) {
+                // get the tweet clicked on
+                Tweet tweet = tweets.get(position);
+                Intent i = new Intent(context, DetailActivity.class);
+                // serialize the movie using parceler, use its short name as a key
+                i.putExtra("tweet", Parcels.wrap(tweet));
+                context.startActivity(i);
+            }
+
         }
     }
 
