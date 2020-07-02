@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
+import com.codepath.apps.restclienttemplate.databinding.ActivityDetailBinding;
 import com.codepath.apps.restclienttemplate.fragmens.ComposeTweetDialogFragment;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -38,42 +39,25 @@ public class DetailActivity extends AppCompatActivity {
 
     // the tweet to display
     Tweet tweet;
-    Context context;
-
-    EditText etReply;
-    Button btnReply;
-    ImageView ivProfileImage;
-    ImageView ivMediaPhoto;
-    TextView tvBody;
-    TextView tvScreenName;
-    TextView tvRelativeTime;
-    ImageView ivLike;
-    ImageView ivRetweet;
-    ImageView ivReply;
 
     // Get reference to the twitter client
     TwitterClient client;
     long id;
 
+    ActivityDetailBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
+         binding = ActivityDetailBinding.inflate(getLayoutInflater());
+
+        // layout of activity is stored in a special property called root
+        View view = binding.getRoot();
+        setContentView(view);
 
         // unwrap the tweet passed in via intent
         tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
         Log.d("DetailActivity", String.format("Showing details for '%s'", tweet.body));
-
-        etReply = findViewById(R.id.etReply);
-        btnReply = findViewById(R.id.btnReply);
-        ivProfileImage = findViewById(R.id.ivProfileImage);
-        ivMediaPhoto = findViewById(R.id.ivMediaPhoto);
-        tvBody = findViewById(R.id.tvBody);
-        tvScreenName = findViewById(R.id.tvScreenName);
-        tvRelativeTime = findViewById(R.id.tvRelativeTime);
-        ivLike = findViewById(R.id.ivLike);
-        ivRetweet = findViewById(R.id.ivRetweet);
-        ivReply = findViewById(R.id.ivReply);
 
         bind(tweet);
 
@@ -81,10 +65,10 @@ public class DetailActivity extends AppCompatActivity {
         id = tweet.id;
 
         // Set click listener on button
-        btnReply.setOnClickListener(new View.OnClickListener() {
+        binding.btnReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tweetContent = etReply.getText().toString();
+                String tweetContent = binding.etReply.getText().toString();
                 if (tweetContent.isEmpty()) {
                     Toast.makeText(DetailActivity.this,
                             "Sorry, your tweet cannot be empty.", Toast.LENGTH_LONG).show();
@@ -126,7 +110,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        ivLike.setOnClickListener(new View.OnClickListener() {
+        binding.ivLike.setOnClickListener(new View.OnClickListener() {
             boolean liked = false;
             @Override
             public void onClick(View v) {
@@ -139,7 +123,7 @@ public class DetailActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Headers headers, JSON json) {
                             Log.i(TAG, "onSuccess: like tweet");
-                            ivLike.setSelected(true);
+                            binding.ivLike.setSelected(true);
                             liked = true;
                         }
 
@@ -155,7 +139,7 @@ public class DetailActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Headers headers, JSON json) {
                             Log.i(TAG, "onSuccess: unlike tweet");
-                            ivLike.setSelected(false);
+                            binding.ivLike.setSelected(false);
                             liked = false;
                         }
 
@@ -169,7 +153,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        ivRetweet.setOnClickListener(new View.OnClickListener() {
+        binding.ivRetweet.setOnClickListener(new View.OnClickListener() {
             boolean reTweeted = false;
             @Override
             public void onClick(View v) {
@@ -178,7 +162,7 @@ public class DetailActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Headers headers, JSON json) {
                             Log.i(TAG, "onSuccess: retweet");
-                            ivRetweet.setSelected(true);
+                            binding.ivRetweet.setSelected(true);
                             reTweeted = true;
                         }
                         @Override
@@ -192,7 +176,7 @@ public class DetailActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(int statusCode, Headers headers, JSON json) {
                             Log.i(TAG, "onSuccess: unRetweet");
-                            ivRetweet.setSelected(false);
+                            binding.ivRetweet.setSelected(false);
                             reTweeted = false;
                         }
                         @Override
@@ -205,7 +189,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        ivReply.setOnClickListener(new View.OnClickListener() {
+        binding.ivReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
@@ -222,15 +206,14 @@ public class DetailActivity extends AppCompatActivity {
     int radius = 30; // corner radius, higher value = more rounded
     int margin = 10; // crop margin, set to 0 for corners with no crop
     public void bind(Tweet tweet) {
-        tvBody.setText(tweet.body);
-        tvScreenName.setText(tweet.user.name);
-        //tvRelativeTime.setText(getRelativeTimeAgo(tweet.createdAt));
-        etReply.setText("@" + tweet.user.screenName + "  ");
+        binding.tvBody.setText(tweet.body);
+        binding.tvScreenName.setText(tweet.user.name);
+        binding.etReply.setText("@" + tweet.user.screenName + "  ");
 
         Glide.with(DetailActivity.this).load(tweet.user.profileImageUrl)
-                .transform(new RoundedCornersTransformation(radius, margin)).into(ivProfileImage);
+                .transform(new RoundedCornersTransformation(radius, margin)).into(binding.ivProfileImage);
         Glide.with(DetailActivity.this).load(tweet.mediaUrl)
-                    .into(ivMediaPhoto);
+                    .into(binding.ivMediaPhoto);
 
 
     }

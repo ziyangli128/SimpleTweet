@@ -20,6 +20,7 @@ import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.activities.ComposeActivity;
 import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
+import com.codepath.apps.restclienttemplate.databinding.FragmentComposeTweetBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
@@ -34,11 +35,13 @@ public class ComposeTweetDialogFragment extends DialogFragment {
     public static final String TAG = "ComposeFragment";
     public static final int MAX_TWEET_LENGTH = 280;
 
-    private EditText etCompose;
-    Button btnTweet;
+//    private EditText etCompose;
+//    Button btnTweet;
 
     // Get reference to the twitter client
     TwitterClient client;
+
+    FragmentComposeTweetBinding binding;
 
     public ComposeTweetDialogFragment() {
         // Empty constructor is required for DialogFragment
@@ -57,7 +60,12 @@ public class ComposeTweetDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_compose_tweet, container);
+        // fancy_fragment.xml -> FancyFragmentBinding
+        binding = FragmentComposeTweetBinding.inflate(getLayoutInflater(), container, false);
+
+        // layout of fragment is stored in a special property called root
+        View view = binding.getRoot();
+        return view;
     }
 
     @Override
@@ -65,19 +73,19 @@ public class ComposeTweetDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         // Get field from view
         String name = getArguments().getString("edttext");
-        etCompose = (EditText) view.findViewById(R.id.etCompose);
-        btnTweet = view.findViewById(R.id.btnTweet);
+//        etCompose = (EditText) view.findViewById(R.id.etCompose);
+//        btnTweet = view.findViewById(R.id.btnTweet);
         if (name != null) {
-            etCompose.setText("@" + name + " ");
+            binding.etCompose.setText("@" + name + " ");
         }
 
         client = TwitterApp.getRestClient(getActivity());
 
-        btnTweet.setOnClickListener(new View.OnClickListener() {
+        binding.btnTweet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "onClick: clicked");
-                String tweetContent = etCompose.getText().toString();
+                String tweetContent = binding.etCompose.getText().toString();
                 if (tweetContent.isEmpty()) {
                     Toast.makeText(getActivity(),
                             "Sorry, your tweet cannot be empty.", Toast.LENGTH_LONG).show();

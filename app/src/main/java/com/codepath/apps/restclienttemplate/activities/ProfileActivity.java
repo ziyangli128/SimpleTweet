@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +18,8 @@ import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.adapters.ProfilesAdapter;
 import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
+import com.codepath.apps.restclienttemplate.databinding.ActivityDetailBinding;
+import com.codepath.apps.restclienttemplate.databinding.ActivityProfileBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -40,38 +43,30 @@ public class ProfileActivity extends AppCompatActivity {
     List<User> followers;
     List<User> followings;
 
-    ImageView ivProfileImage;
-    TextView tvScreenName;
-    TextView tvName;
-
-    RecyclerView rvFollowers;
-    RecyclerView rvFollowings;
     ProfilesAdapter followerAdapter;
     ProfilesAdapter followingAdapter;
     TwitterClient client;
 
+    ActivityProfileBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        binding = ActivityProfileBinding.inflate(getLayoutInflater());
+
+        // layout of activity is stored in a special property called root
+        View view = binding.getRoot();
+        setContentView(view);
 
         user = (User) Parcels.unwrap(getIntent().getParcelableExtra("user"));
 
-        ivProfileImage = findViewById(R.id.ivProfileImage);
-        tvScreenName = findViewById(R.id.tvScreenName);
-        tvName = findViewById(R.id.tvName);
-
-        rvFollowers = findViewById(R.id.rvFollowers);
-        rvFollowings = findViewById(R.id.rvFollowing);
-
-        tvScreenName.setText(user.name);
-        tvName.setText("@" + user.screenName);
+        binding.tvScreenName.setText(user.name);
+        binding.tvName.setText("@" + user.screenName);
 
         int radius = 30; // corner radius, higher value = more rounded
         int margin = 10; // crop margin, set to 0 for corners with no crop
         Glide.with(this).load(user.profileImageUrl)
-                .transform(new RoundedCornersTransformation(radius, margin)).into(ivProfileImage);
+                .transform(new RoundedCornersTransformation(radius, margin)).into(binding.ivProfileImage);
 
         // create a TwitterClient
         client = TwitterApp.getRestClient(this);
@@ -85,10 +80,10 @@ public class ProfileActivity extends AppCompatActivity {
         LinearLayoutManager followersLayoutManager = new LinearLayoutManager(this);
         LinearLayoutManager followingsLayoutManager = new LinearLayoutManager(this);
 
-        rvFollowers.setLayoutManager(followersLayoutManager);
-        rvFollowers.setAdapter(followerAdapter);
-        rvFollowings.setLayoutManager(followingsLayoutManager);
-        rvFollowings.setAdapter(followingAdapter);
+        binding.rvFollowers.setLayoutManager(followersLayoutManager);
+        binding.rvFollowers.setAdapter(followerAdapter);
+        binding.rvFollowings.setLayoutManager(followingsLayoutManager);
+        binding.rvFollowings.setAdapter(followingAdapter);
 
         populateFollowers();
 
