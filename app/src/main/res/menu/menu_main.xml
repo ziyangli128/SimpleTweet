@@ -18,5 +18,4 @@
         android:title="Compose"
         app:showAsAction="always" />
 
-
 </menu>

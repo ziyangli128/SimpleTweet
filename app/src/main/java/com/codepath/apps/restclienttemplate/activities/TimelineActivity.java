@@ -58,6 +58,7 @@ public class TimelineActivity extends AppCompatActivity {
     // keep track of the lowest tweet id (the oldest tweet)
     public static Long lowestMaxId = (long) 0;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

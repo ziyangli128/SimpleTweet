@@ -152,7 +152,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 public void onClick(View v) {
                     Intent i = new Intent(context, ProfileActivity.class);
                     // serialize the movie using parceler, use its short name as a key
-                    i.putExtra("tweet", Parcels.wrap(tweet));
+                    i.putExtra("user", Parcels.wrap(tweet.user));
                     context.startActivity(i);
                 }
             });
