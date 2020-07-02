@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,17 +10,23 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
+import com.codepath.apps.restclienttemplate.fragmens.ComposeTweetDialogFragment;
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.codepath.apps.restclienttemplate.models.TweetDao;
+import com.codepath.apps.restclienttemplate.models.TweetWithUser;
+import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -37,6 +44,7 @@ public class TimelineActivity extends AppCompatActivity {
     private final int REQUEST_CODE = 20;
 
     // declare an instance of TwitterClient to make API requests
+    TweetDao tweetDao;
     TwitterClient client;
     RecyclerView rvTweets;
     List<Tweet> tweets;
@@ -45,9 +53,7 @@ public class TimelineActivity extends AppCompatActivity {
     Context context;
 
     // keep track of the lowest tweet id (the oldest tweet)
-    public static Long lowestMaxId;
-
-
+    public static Long lowestMaxId = (long) 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,7 @@ public class TimelineActivity extends AppCompatActivity {
 
         // create a TwitterClient
         client = TwitterApp.getRestClient(this);
+        tweetDao = ((TwitterApp) getApplicationContext()).getMyDatabase().tweetDao();
 
         // find the swipe refresh layout
         swipeContainer = findViewById(R.id.swipeContainer);
@@ -97,11 +104,29 @@ public class TimelineActivity extends AppCompatActivity {
             public void onLoadMore(long page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
+                Log.i(TAG, "onLoadMore: " + lowestMaxId.toString());
                 loadNextDataFromApi(lowestMaxId);
             }
         });
 
+        // query for existing tweets in the db
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "Showing data from database");
+                List<TweetWithUser> tweetWithUsers = tweetDao.recentItems();
+                List<Tweet> tweetsFromDB = TweetWithUser.getTweetList(tweetWithUsers);
+                adapter.clear();
+                adapter.addAll(tweetsFromDB);
+            }
+        });
         populateHomeTimeline();
+    }
+
+    private void showEditDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeTweetDialogFragment composeTweetDialogFragment = ComposeTweetDialogFragment.newInstance("Some Title");
+        composeTweetDialogFragment.show(fm, "fragment_compose_tweet");
     }
 
     @Override
@@ -138,8 +163,9 @@ public class TimelineActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.compose) {
             // Compose icon has been selected
             // Navigate to the compose activity
-            Intent i = new Intent(this, ComposeActivity.class);
-            startActivityForResult(i, REQUEST_CODE);
+//            Intent i = new Intent(this, ComposeActivity.class);
+//            startActivityForResult(i, REQUEST_CODE);
+            showEditDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -165,14 +191,26 @@ public class TimelineActivity extends AppCompatActivity {
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
-                Log.i(TAG, "lowestMaxId: ");
                 Log.i(TAG, "onSuccess!" + json.toString());
                 JSONArray jsonArray = json.jsonArray;
                 try {
+                    final List<Tweet> tweetsFromNetwork = fromJsonArray(jsonArray);
                     adapter.clear();
-                    adapter.addAll(fromJsonArray(jsonArray));
+                    adapter.addAll(tweetsFromNetwork);
                     // Now we call setRefreshing(false) to signal refresh has finished
                     swipeContainer.setRefreshing(false);
+                    AsyncTask.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i(TAG, "Saving data from database");
+                            // insert users first
+                            List<User> usersFromNetwork = User.fromJsonTweetArray(tweetsFromNetwork);
+                            tweetDao.insertModel(usersFromNetwork.toArray(new User[0]));
+                            // insert tweets next
+                            tweetDao.insertModel(tweetsFromNetwork.toArray(new Tweet[0]));
+                        }
+                    });
+                    Log.i(TAG, "onSuccess: " + lowestMaxId.toString());
                 } catch (JSONException e) {
                     Log.e(TAG, "Json exception", e);
                     e.printStackTrace();
