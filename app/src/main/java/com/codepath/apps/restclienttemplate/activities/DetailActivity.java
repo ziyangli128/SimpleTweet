@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
+import com.codepath.apps.restclienttemplate.fragmens.ComposeTweetDialogFragment;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
@@ -47,6 +49,7 @@ public class DetailActivity extends AppCompatActivity {
     TextView tvRelativeTime;
     ImageView ivLike;
     ImageView ivRetweet;
+    ImageView ivReply;
 
     // Get reference to the twitter client
     TwitterClient client;
@@ -70,6 +73,7 @@ public class DetailActivity extends AppCompatActivity {
         tvRelativeTime = findViewById(R.id.tvRelativeTime);
         ivLike = findViewById(R.id.ivLike);
         ivRetweet = findViewById(R.id.ivRetweet);
+        ivReply = findViewById(R.id.ivReply);
 
         bind(tweet);
 
@@ -198,6 +202,19 @@ public class DetailActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+
+        ivReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("edttext", tweet.user.screenName);
+                FragmentManager fm = getSupportFragmentManager();
+                ComposeTweetDialogFragment composeTweetDialogFragment = ComposeTweetDialogFragment.newInstance("Some Title");
+                composeTweetDialogFragment.show(fm, "fragment_compose_tweet");
+                composeTweetDialogFragment.setArguments(bundle);
+                Log.i("view holder", "onClick: ");
             }
         });
     }

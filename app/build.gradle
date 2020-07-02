@@ -34,7 +34,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')

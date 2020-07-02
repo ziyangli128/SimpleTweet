@@ -3,6 +3,7 @@ package com.codepath.apps.restclienttemplate.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.activities.DetailActivity;
+import com.codepath.apps.restclienttemplate.activities.ProfileActivity;
 import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
 import com.codepath.apps.restclienttemplate.fragmens.ComposeTweetDialogFragment;
 import com.codepath.apps.restclienttemplate.models.Tweet;
@@ -135,17 +137,23 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             ivReply.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // gets item position
-                    int position = getAdapterPosition();
-                    // make sure the position is valid, i.e. actually exists in the view
-                    if (position != RecyclerView.NO_POSITION) {
-//                        FragmentManager fm = TimelineActivity.getSupportFragmentManager();
-//                        ComposeTweetDialogFragment composeTweetDialogFragment = ComposeTweetDialogFragment.newInstance("Some Title");
-//                        composeTweetDialogFragment.show(fm, "fragment_compose_tweet");
-                        Log.i("view holder", "onClick: ");
-                    }
-//                    Toast.makeText(TimelineActivity,
-//                            ".", Toast.LENGTH_LONG).show();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("edttext", tweet.user.screenName);
+                    FragmentManager fm = ((TimelineActivity) context).getSupportFragmentManager();
+                    ComposeTweetDialogFragment composeTweetDialogFragment = ComposeTweetDialogFragment.newInstance("Some Title");
+                    composeTweetDialogFragment.show(fm, "fragment_compose_tweet");
+                    composeTweetDialogFragment.setArguments(bundle);
+                    Log.i("view holder", "onClick: ");
+                }
+            });
+
+            ivProfileImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(context, ProfileActivity.class);
+                    // serialize the movie using parceler, use its short name as a key
+                    i.putExtra("tweet", Parcels.wrap(tweet));
+                    context.startActivity(i);
                 }
             });
 

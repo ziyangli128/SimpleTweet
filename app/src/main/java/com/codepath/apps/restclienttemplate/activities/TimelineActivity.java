@@ -52,8 +52,8 @@ public class TimelineActivity extends AppCompatActivity {
     List<Tweet> tweets;
     TweetsAdapter adapter;
     SwipeRefreshLayout swipeContainer;
-    ImageView ivReply;
-    Context context;
+    // Instance of the progress action-view
+    MenuItem miActionProgressItem;
 
     // keep track of the lowest tweet id (the oldest tweet)
     public static Long lowestMaxId = (long) 0;
@@ -124,9 +124,8 @@ public class TimelineActivity extends AppCompatActivity {
             }
         });
 
+        //showProgressBar();
         populateHomeTimeline();
-        //hideProgressBar();
-
 
     }
 
@@ -140,18 +139,16 @@ public class TimelineActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        //miActionProgressItem = menu.findItem(R.id.miActionProgress);
         //actionProgressItem = menu.findItem(R.id.miActionProgress);
         return true;
     }
 
-    // Instance of the progress action-view
-    MenuItem miActionProgressItem;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // Store instance of the menu item containing progress
         miActionProgressItem = menu.findItem(R.id.miActionProgress);
-        //showProgressBar();
 
         // Return to finish
         return true;
@@ -164,7 +161,6 @@ public class TimelineActivity extends AppCompatActivity {
 
     public void hideProgressBar() {
         // Hide progress item
-        ;
         miActionProgressItem.setVisible(false);
     }
 
@@ -183,7 +179,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             // Get data from the Intent (tweet)
             Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
             // Update the Recycler View with the new tweet
@@ -233,7 +229,6 @@ public class TimelineActivity extends AppCompatActivity {
 
             }
         }, 0);
-        //hideProgressBar();
     }
 
     // Append the next page of data into the adapter
@@ -276,5 +271,4 @@ public class TimelineActivity extends AppCompatActivity {
         }
         return tweets;
     }
-
 }

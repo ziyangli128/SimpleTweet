@@ -19,6 +19,7 @@ import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.activities.ComposeActivity;
+import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
@@ -63,12 +64,12 @@ public class ComposeTweetDialogFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // Get field from view
+        String name = getArguments().getString("edttext");
         etCompose = (EditText) view.findViewById(R.id.etCompose);
         btnTweet = view.findViewById(R.id.btnTweet);
-
-        // Fetch arguments from bundle and set title
-//        String title = getArguments().getString("title", "Enter Tweet");
-//        getDialog().setTitle(title);
+        if (name != null) {
+            etCompose.setText("@" + name + " ");
+        }
 
         client = TwitterApp.getRestClient(getActivity());
 
