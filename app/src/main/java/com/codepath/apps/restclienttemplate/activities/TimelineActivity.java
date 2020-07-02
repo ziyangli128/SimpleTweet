@@ -158,12 +158,14 @@ public class TimelineActivity extends AppCompatActivity {
 
     public void showProgressBar() {
         // Show progress item
-        miActionProgressItem.setVisible(true);
+        if (miActionProgressItem != null)
+            miActionProgressItem.setVisible(true);
     }
 
     public void hideProgressBar() {
         // Hide progress item
-        miActionProgressItem.setVisible(false);
+        if (miActionProgressItem != null)
+            miActionProgressItem.setVisible(false);
     }
 
     @Override
@@ -196,6 +198,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     // make API request to get HomeTimeline
     private void populateHomeTimeline() {
+        showProgressBar();
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -231,6 +234,7 @@ public class TimelineActivity extends AppCompatActivity {
 
             }
         }, 0);
+        hideProgressBar();
     }
 
     // Append the next page of data into the adapter
@@ -241,6 +245,7 @@ public class TimelineActivity extends AppCompatActivity {
         //  --> Deserialize and construct new model objects from the API response
         //  --> Append the new data objects to the existing set of items inside the array of items
         //  --> Notify the adapter of the new items made with `notifyItemRangeInserted()`
+        showProgressBar();
         client.loadNextData(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -260,6 +265,7 @@ public class TimelineActivity extends AppCompatActivity {
 
             }
         }, offset);
+        hideProgressBar();
     }
 
     public static List<Tweet> fromJsonArray(JSONArray jsonArray) throws JSONException {
