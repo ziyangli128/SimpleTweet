@@ -45,9 +45,12 @@ public class DetailActivity extends AppCompatActivity {
     TextView tvBody;
     TextView tvScreenName;
     TextView tvRelativeTime;
+    ImageView ivLike;
+    ImageView ivRetweet;
 
     // Get reference to the twitter client
     TwitterClient client;
+    long id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +68,13 @@ public class DetailActivity extends AppCompatActivity {
         tvBody = findViewById(R.id.tvBody);
         tvScreenName = findViewById(R.id.tvScreenName);
         tvRelativeTime = findViewById(R.id.tvRelativeTime);
+        ivLike = findViewById(R.id.ivLike);
+        ivRetweet = findViewById(R.id.ivRetweet);
 
         bind(tweet);
 
         client = TwitterApp.getRestClient(this);
+        id = tweet.id;
 
         // Set click listener on button
         btnReply.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +119,85 @@ public class DetailActivity extends AppCompatActivity {
                         Log.e(TAG, "onFailure: publish tweet", throwable);
                     }
                 });
+            }
+        });
 
+        ivLike.setOnClickListener(new View.OnClickListener() {
+            boolean liked = false;
+            @Override
+            public void onClick(View v) {
+                Log.i("likeTweet", "onClick: clicked");
+
+                // check if the tweet is already liked
+                if (!liked) {
+                    // Make an API call to Twitter to like the tweet
+                    client.likeTweet(id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG, "onSuccess: like tweet");
+                            ivLike.setSelected(true);
+                            liked = true;
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.e(TAG, "onFailure: like tweet", throwable);
+                            liked = true;
+                        }
+                    });
+                } else {
+                    // Make an API call to Twitter to like the tweet
+                    client.unlikeTweet(id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG, "onSuccess: unlike tweet");
+                            ivLike.setSelected(false);
+                            liked = false;
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.e(TAG, "onFailure: unlike tweet", throwable);
+                            liked = false;
+                        }
+                    });
+                }
+            }
+        });
+
+        ivRetweet.setOnClickListener(new View.OnClickListener() {
+            boolean reTweeted = false;
+            @Override
+            public void onClick(View v) {
+                if (!reTweeted) {
+                    client.reTweet(tweet.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG, "onSuccess: retweet");
+                            ivRetweet.setSelected(true);
+                            reTweeted = true;
+                        }
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.e(TAG, "onFailure: retweet", throwable);
+                            reTweeted = true;
+                        }
+                    });
+                } else {
+                    client.unRetweet(tweet.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG, "onSuccess: unRetweet");
+                            ivRetweet.setSelected(false);
+                            reTweeted = false;
+                        }
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.e(TAG, "onFailure: unRetweet", throwable);
+                            reTweeted = false;
+                        }
+                    });
+                }
             }
         });
     }
@@ -130,5 +214,7 @@ public class DetailActivity extends AppCompatActivity {
                 .transform(new RoundedCornersTransformation(radius, margin)).into(ivProfileImage);
         Glide.with(DetailActivity.this).load(tweet.mediaUrl)
                     .into(ivMediaPhoto);
+
+
     }
 }

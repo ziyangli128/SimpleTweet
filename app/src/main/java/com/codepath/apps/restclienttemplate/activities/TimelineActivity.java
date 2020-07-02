@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.EndlessRecyclerViewScrollListener;
@@ -50,6 +52,7 @@ public class TimelineActivity extends AppCompatActivity {
     List<Tweet> tweets;
     TweetsAdapter adapter;
     SwipeRefreshLayout swipeContainer;
+    ImageView ivReply;
     Context context;
 
     // keep track of the lowest tweet id (the oldest tweet)
@@ -120,7 +123,11 @@ public class TimelineActivity extends AppCompatActivity {
                 adapter.addAll(tweetsFromDB);
             }
         });
+
         populateHomeTimeline();
+        //hideProgressBar();
+
+
     }
 
     private void showEditDialog() {
@@ -133,16 +140,18 @@ public class TimelineActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        //actionProgressItem = menu.findItem(R.id.miActionProgress);
         return true;
     }
 
     // Instance of the progress action-view
-    MenuItem actionProgressItem;
+    MenuItem miActionProgressItem;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // Store instance of the menu item containing progress
-        actionProgressItem = menu.findItem(R.id.miActionProgress);
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        //showProgressBar();
 
         // Return to finish
         return true;
@@ -150,12 +159,13 @@ public class TimelineActivity extends AppCompatActivity {
 
     public void showProgressBar() {
         // Show progress item
-        actionProgressItem.setVisible(true);
+        miActionProgressItem.setVisible(true);
     }
 
     public void hideProgressBar() {
         // Hide progress item
-        actionProgressItem.setVisible(false);
+        ;
+        miActionProgressItem.setVisible(false);
     }
 
     @Override
@@ -223,6 +233,7 @@ public class TimelineActivity extends AppCompatActivity {
 
             }
         }, 0);
+        //hideProgressBar();
     }
 
     // Append the next page of data into the adapter
